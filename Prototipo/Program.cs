@@ -1,4 +1,6 @@
 ﻿
+using System.Diagnostics.Metrics;
+
 Console.WriteLine("------------------------------------\nBIENVENIDO\n------------------------------------");
 
 bool login = verifica_logueo();
@@ -6,14 +8,14 @@ if (login)
 {
     string rsp_principal;
     string rsp_peso;
-    string rsp_resumen;
     string region_origen;
     string region_destino;
     string direccion_origen;
     string direccion_destino;
     string origen;
     string destino;
-    //string rsp_ciudad_origen;
+    string rsp_estado_de_cuenta;
+    string numero_orden;
     Console.WriteLine("------------------------------------\nUSTED ES CLIENTE CORPORATIVO");
 
     rsp_principal = menu_principal();
@@ -29,6 +31,7 @@ if (login)
         {
             Console.WriteLine("------------------------------------\nDATOS DEL CLIENTE");
             Console.WriteLine("Nombre: JUAN | Apellido: PEREZ | Teléfono: 011-1512345678 | DNI: 12345678 | Correo Electrónico: admin@admin.com");
+            
             region_origen = consulta_region_origen();
             direccion_origen = consulta_direccion("origen");
             origen = $"{direccion_origen}, {region_origen}";
@@ -38,34 +41,76 @@ if (login)
             
             muestra_resumen_pedido(origen, destino);
             Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
+            Console.WriteLine("Presione [Enter] para salir");
             Console.ReadLine();
         }
         else // Aca seleccionó la opcion [5] de la consulta del peso
         {
             Console.WriteLine("Lo sentimos pero nuestro servicio solo admite paquetes menores a 30 kg. Hasta luego!");
+            Console.WriteLine("Presione [Enter] para salir");
             Console.ReadLine();
         }
     }
     else if (rsp_principal == "2") //Consultar estado de cuenta
     {
-        Console.WriteLine($"Usted marcó la opcion [{rsp_principal}]");
-        Console.ReadLine();
+        rsp_estado_de_cuenta = consulta_estado_de_cuenta();
+        if (rsp_estado_de_cuenta == "1")
+        {
+            Console.WriteLine("------------------------------------\nDATOS DE LA FACTURACION");
+            Console.WriteLine("Punto de venta: Pinamar | N°Factura: 0001-452834024 | CUIT: 20123456783 | Fecha: 16/10/2022 | Tarifa: $100.000 | Precio final: $124.500 | Vencimiento: 16/11/2022");
+            Console.WriteLine("Estado de la Factura N°0001-452834024: IMPAGA");
+            Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
+            Console.WriteLine("Presione [Enter] para salir");
+            Console.ReadLine();
+        }
+        else if (rsp_estado_de_cuenta == "2")
+        {
+            Console.WriteLine("------------------------------------\nORDENES DE SERVICION SIN FACTURAR");
+            for (int i = 0; i < 6; i++)
+            {
+                Random numero_random = new Random();
+                Console.WriteLine($"Orden de Servicio N°{numero_random.Next()} sin facturar!");
+            }
+            Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
+            Console.WriteLine("Presione [Enter] para salir");
+            Console.ReadLine();
+        }
+        else if (rsp_estado_de_cuenta == "3")
+        {
+            Console.WriteLine("------------------------------------\nSALDO DE SU CUENTA");
+            Console.WriteLine("El saldo final de su Estado de cuenta es: $54.340");
+            Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
+            Console.WriteLine("Presione [Enter] para salir");
+            Console.ReadLine();
+        }
+        else
+        {
+            Console.WriteLine("Lo sentimos ocurrio un error inesperado.");
+            Console.WriteLine("Muchas gracias por utilizar nuestra aplicación. Esperamos verlo pronto!");
+            Console.ReadLine();
+        }
     }
     else if(rsp_principal == "3") //Consultar seguimiento de pedido
     {
-        Console.WriteLine($"Usted marcó la opcion [{rsp_principal}]");
+        numero_orden = consulta_numero_orden();
+        Console.WriteLine("------------------------------------\nDATOS DEL SEGUIMIENTO");
+        Console.WriteLine($"Número de orden: {numero_orden} | Estado: ENTREGADO | Entrega estimada: {DateTime.Now.AddDays(-10).ToString().Substring(0,10)}");
+
+        Console.WriteLine($"Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto.");
+        Console.WriteLine("Presione [Enter] para salir");
         Console.ReadLine();
     }
     else if (rsp_principal == "4") //Salir
     {
-        Console.WriteLine($"Usted marcó la opcion [{rsp_principal}]");
         Console.WriteLine("Hasta luego!");
+        Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
         Console.ReadLine();
     }
 }
 else
 {
-    Console.WriteLine("------------------------------------\nNo se pudieron verificar sus credenciales de ingreso! Presiona [Enter] para salir.");
+    Console.WriteLine("------------------------------------\nNo se pudieron verificar sus credenciales de ingreso!");
+    Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
     Console.ReadLine();
 }
 
@@ -105,7 +150,7 @@ string menu_principal()
     opciones_validas.Add("3");
     opciones_validas.Add("4");
 
-    string opcion_elegida = null;
+    string opcion_elegida = "";
     bool bandera = true;
     while (bandera)
     {
@@ -115,7 +160,7 @@ string menu_principal()
 
         if (String.IsNullOrEmpty(opcion_elegida))
         {
-            Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion. Por favor seleccione una opcion!");
+            Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion.");
             Console.WriteLine("------------------------------------\nIntente nuevamente!");
         }
         else if (!valida_entero(opcion_elegida))
@@ -147,7 +192,7 @@ bool valida_entero(string entero_a_validar)
     {
         entero_validado = Convert.ToInt32(entero_a_validar);
     }
-    catch (Exception e)
+    catch (Exception)
     {
         rsp = false;
     }
@@ -164,7 +209,7 @@ string consulta_peso_paquete()
     opciones_validas.Add("4");
     opciones_validas.Add("5");
 
-    string opcion_elegida = null;
+    string opcion_elegida = "";
     bool bandera = true;
     while (bandera)
     {
@@ -174,7 +219,7 @@ string consulta_peso_paquete()
 
         if (String.IsNullOrEmpty(opcion_elegida))
         {
-            Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion. Por favor seleccione una opcion!");
+            Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion.");
             Console.WriteLine("------------------------------------\nIntente nuevamente!");
         }
         else if (!valida_entero(opcion_elegida))
@@ -205,7 +250,7 @@ string consulta_region_origen()
     opciones_validas.Add("3");
     opciones_validas.Add("4");
 
-    string opcion_elegida = null;
+    string opcion_elegida = "";
     bool bandera = true;
 
     while (bandera)
@@ -216,7 +261,7 @@ string consulta_region_origen()
 
         if (String.IsNullOrEmpty(opcion_elegida))
         {
-            Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion. Por favor seleccione una opcion!");
+            Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion.");
             Console.WriteLine("------------------------------------\nIntente nuevamente!");
         }
         else if (!valida_entero(opcion_elegida))
@@ -276,7 +321,7 @@ string consulta_region_destino()
     opciones_validas.Add("5");
     opciones_validas.Add("6");
 
-    string opcion_elegida = null;
+    string opcion_elegida = "";
     bool bandera = true;
 
     while (bandera)
@@ -287,7 +332,7 @@ string consulta_region_destino()
 
         if (String.IsNullOrEmpty(opcion_elegida))
         {
-            Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion. Por favor seleccione una opcion!");
+            Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion.");
             Console.WriteLine("------------------------------------\nIntente nuevamente!");
         }
         else if (!valida_entero(opcion_elegida))
@@ -378,7 +423,7 @@ void muestra_resumen_pedido(string origen, string destino)
     opciones_validas.Add("1");
     opciones_validas.Add("2");
 
-    string opcion_elegida = null;
+    string opcion_elegida;
     bool bandera = true;
     while (bandera)
     {
@@ -407,6 +452,86 @@ void muestra_resumen_pedido(string origen, string destino)
         }
 
     }
+}
+
+
+string consulta_estado_de_cuenta()
+{
+    List<string> opciones_validas = new List<string>();
+    opciones_validas.Add("1");
+    opciones_validas.Add("2");
+    opciones_validas.Add("3");
+
+    string opcion_elegida = "";
+    bool bandera = true;
+    while (bandera)
+    {
+        Console.WriteLine("------------------------------------\nIngrese un numero de acuerdo a la consulta que desea realizar");
+        Console.WriteLine("[1] Facturación –paga o impaga- \n[2] Servicios cumplidos pendientes de facturación \n[3] Saldo ");
+        opcion_elegida = Console.ReadLine();
+
+        if (String.IsNullOrEmpty(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion.");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else if (!valida_entero(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - No se pudo validar el numero ingresado!");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else if (!opciones_validas.Contains(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - Marcó una opcion fuera del intervalo propuesto!");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else
+        {
+            bandera = false;
+        }
+    }
+    return opcion_elegida;
+}
+
+
+string consulta_numero_orden()
+{
+    List<string> numeros_de_ordenes_vigentes = new List<string>();
+    numeros_de_ordenes_vigentes.Add("823053");
+    numeros_de_ordenes_vigentes.Add("373823");
+    numeros_de_ordenes_vigentes.Add("100284");
+    numeros_de_ordenes_vigentes.Add("100235");
+    numeros_de_ordenes_vigentes.Add("324441");
+
+    string numero_orden = "";
+    bool bandera = true;
+    while (bandera)
+    {
+        Console.WriteLine("------------------------------------\nIngrese el numero de orden de su pedido");
+        numero_orden = Console.ReadLine();
+
+        if (String.IsNullOrEmpty(numero_orden))
+        {
+            Console.WriteLine("------------------------------------\nERROR - Ingrese un número.");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else if (!valida_entero(numero_orden))
+        {
+            Console.WriteLine("------------------------------------\nERROR - No se pudo validar el numero ingresado.");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else if (!numeros_de_ordenes_vigentes.Contains(numero_orden))
+        {
+            Console.WriteLine("------------------------------------\nERROR - El número de orden ingresado no existe.");
+            Console.WriteLine("------------------------------------\nPor favor ingrese un número de orden existente");
+        }
+        else
+        {
+            bandera = false;
+        }
+    }
+
+    return numero_orden;
 }
 
 
