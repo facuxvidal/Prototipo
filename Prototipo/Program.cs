@@ -370,7 +370,8 @@ string consulta_direccion(string tipo_de_direccion)
 
 void muestra_resumen_pedido(string origen, string destino)
 {
-    Console.WriteLine("------------------------------------\nRESUMEN DEL PEDIDO");
+    Random numero_random = new Random();
+    Console.WriteLine($"------------------------------------\nRESUMEN DEL PEDIDO N°{numero_random.Next()}");
     Console.WriteLine($"Producto: Smart TV 50' 4K UHD Philips | Tarifa: $100.000 | Origen: {origen} | Destino : {destino}");
 
     List<string> opciones_validas = new List<string>();
