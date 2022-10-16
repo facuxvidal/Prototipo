@@ -31,14 +31,14 @@ if (login)
         {
             Console.WriteLine("------------------------------------\nDATOS DEL CLIENTE");
             Console.WriteLine("Nombre: JUAN | Apellido: PEREZ | Teléfono: 011-1512345678 | DNI: 12345678 | Correo Electrónico: admin@admin.com");
-            
+
             region_origen = consulta_region_origen();
             direccion_origen = consulta_direccion("origen");
             origen = $"{direccion_origen}, {region_origen}";
             region_destino = consulta_region_destino();
             direccion_destino = consulta_direccion("destino");
             destino = $"{direccion_destino}, {region_destino}";
-            
+
             muestra_resumen_pedido(origen, destino);
             Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
             Console.WriteLine("Presione [Enter] para salir");
@@ -90,11 +90,11 @@ if (login)
             Console.ReadLine();
         }
     }
-    else if(rsp_principal == "3") //Consultar seguimiento de pedido
+    else if (rsp_principal == "3") //Consultar seguimiento de pedido
     {
         numero_orden = consulta_numero_orden();
         Console.WriteLine("------------------------------------\nDATOS DEL SEGUIMIENTO");
-        Console.WriteLine($"Número de orden: {numero_orden} | Estado: ENTREGADO | Entrega estimada: {DateTime.Now.AddDays(-10).ToString().Substring(0,10)}");
+        Console.WriteLine($"Número de orden: {numero_orden} | Estado: ENTREGADO | Entrega estimada: {DateTime.Now.AddDays(-10).ToString().Substring(0, 10)}");
 
         Console.WriteLine($"Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto.");
         Console.WriteLine("Presione [Enter] para salir");
@@ -104,6 +104,7 @@ if (login)
     {
         Console.WriteLine("Hasta luego!");
         Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
+        Console.WriteLine("Presione [Enter] para salir");
         Console.ReadLine();
     }
 }
@@ -121,22 +122,29 @@ bool verifica_logueo()
 {
     string usuario;
     string contraseña;
-    Console.WriteLine("Inicie sesion con su usuario y contraseña");
-    Console.Write("Usuario: ");
-    usuario = Console.ReadLine().Trim();
-    Console.Write("Contraseña: ");
-    contraseña = Console.ReadLine().Trim();
+    bool bandera = true;
+    bool rsp = false;
+    while (bandera)
+    {
+        Console.WriteLine("Inicie sesion con su usuario y contraseña");
+        Console.Write("Usuario: ");
+        usuario = Console.ReadLine().Trim();
+        Console.Write("Contraseña: ");
+        contraseña = Console.ReadLine().Trim();
 
-    bool rsp = true;
-    if (usuario != "admin")
-    {
-        Console.WriteLine("------------------------------------\nERROR - Usuario Inexistente");
-        rsp = false;
-    }
-    if (contraseña != "admin")
-    {
-        Console.WriteLine("------------------------------------\nERROR - Contraseña erronea");
-        rsp = false;
+        if (usuario != "admin")
+        {
+            Console.WriteLine("------------------------------------\nERROR - Usuario Inexistente\n------------------------------------");
+        }
+        else if (contraseña != "admin")
+        {
+            Console.WriteLine("------------------------------------\nERROR - Contraseña erronea\n------------------------------------");
+        }
+        else
+        {
+            bandera = false;
+            rsp = true;
+        }
     }
     return rsp;
 }
@@ -255,7 +263,7 @@ string consulta_region_origen()
 
     while (bandera)
     {
-        Console.WriteLine("------------------------------------\nIngrese un numero de acuerdo a la opcion que corresponda\n------------------------------------");
+        Console.WriteLine("------------------------------------\nIngrese un numero de acuerdo a la región de origen que corresponda\n------------------------------------");
         Console.WriteLine("[1] VIEDMA \n[2] CORDOBA \n[3] RESISTENCIA \n[4] CABA/BUENOS AIRES");
         opcion_elegida = Console.ReadLine();
 
@@ -326,7 +334,7 @@ string consulta_region_destino()
 
     while (bandera)
     {
-        Console.WriteLine("------------------------------------\nIngrese un numero de acuerdo a la opcion que corresponda\n------------------------------------");
+        Console.WriteLine("------------------------------------\nIngrese un numero de acuerdo a la región de destino que corresponda\n------------------------------------");
         Console.WriteLine("[1] PAÍSES LIMÍTROFES \n[2] RESTO DE AMÉRICA LATINA \n[3] AMÉRICA DEL NORTE \n[4] EUROPA \n[5] ASIA \n[6] ARGENTINA ");
         opcion_elegida = Console.ReadLine();
 
