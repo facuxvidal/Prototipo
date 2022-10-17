@@ -1,3 +1,5 @@
-1) Solo se puede loguear con un usuario. Las credenciales de inicio de sesion de ese usuario son las siguientes. 
+1) Solo puede loguearse con un usuario. Las credenciales de inicio de sesion de ese usuario son las siguientes. 
 Usuario: admin
 Contraseña: admin
+
+2) Se pueden consultar por lo siguientes numeros de orden de pedido: 823053,373823,100284,100235,324441.
