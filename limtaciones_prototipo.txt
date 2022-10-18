@@ -1,5 +1,29 @@
-1) Solo puede loguearse con un usuario. Las credenciales de inicio de sesion de ese usuario son las siguientes. 
+1) Solo puede loguearse con un usuario. Las credenciales de inicio de sesion de ese usuario corporativo son las siguientes. 
 Usuario: admin
 Contraseña: admin
 
-2) Se pueden consultar por lo siguientes numeros de orden de pedido: 823053,373823,100284,100235,324441.
+2) Se puede consultar lo siguiente:
+- Solicitar servicio
+- Consultar estado de cuenta
+- Consultar seguimiento de pedido
+
+3) Tendrá disponibles las opciones de región de origen: 
+- Viedma 
+- Córdoba 
+- Resistencia 
+- CABA / Buenos Aires
+
+4) Tendrá disponibles las opciones de región de destino: 
+- PAÍSES LIMÍTROFES 
+- RESTO DE AMÉRICA LATINA  
+- AMÉRICA DEL NORTE 
+- EUROPA 
+- ASIA  
+- ARGENTINA
+
+5) Se pueden consultar por lo siguientes numeros de orden de pedido: 823053,373823,100284,100235,324441
+
+
+
+
+
