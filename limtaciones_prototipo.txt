@@ -23,6 +23,9 @@ Contraseña: admin
 
 5) Se pueden consultar por lo siguientes numeros de orden de pedido: 823053,373823,100284,100235,324441
 
+6) No tendra disponible la opción de retiro en puerta. 
+
+
 
 
 
