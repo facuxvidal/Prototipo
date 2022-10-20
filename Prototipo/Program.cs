@@ -21,35 +21,62 @@ if (login)
     rsp_principal = menu_principal();
     if (rsp_principal == "1") //Solicitar servicio
     {
-        rsp_peso = consulta_peso_paquete();
-        List<string> posibles_respuestas_validas_peso = new List<string>();
-        posibles_respuestas_validas_peso.Add("1");
-        posibles_respuestas_validas_peso.Add("2");
-        posibles_respuestas_validas_peso.Add("3");
-        posibles_respuestas_validas_peso.Add("4");
-        if (posibles_respuestas_validas_peso.Contains(rsp_peso))
+        bool bandera_bultos = true;
+        do
         {
-            Console.WriteLine("------------------------------------\nDATOS DEL CLIENTE");
-            Console.WriteLine("Nombre: JUAN | Apellido: PEREZ | Teléfono: 011-1512345678 | DNI: 12345678 | Correo Electrónico: admin@admin.com");
+            Console.WriteLine("Ingrese la cantidad de paquetes que desee enviar: ");
+            string paquetes = Console.ReadLine();
+            if (valida_entero(paquetes))
+            {
+                int cantidad_paquetes = Convert.ToInt32(paquetes);
+                for (int cont = 1; cont <= cantidad_paquetes; cont++)
+                {
+                    rsp_peso = consulta_peso_paquete();
+                    List<string> posibles_respuestas_validas_peso = new List<string>();
+                    posibles_respuestas_validas_peso.Add("1");
+                    posibles_respuestas_validas_peso.Add("2");
+                    posibles_respuestas_validas_peso.Add("3");
+                    posibles_respuestas_validas_peso.Add("4");
+                    if (posibles_respuestas_validas_peso.Contains(rsp_peso))
+                    {
+                        Console.WriteLine("------------------------------------\nDATOS DEL CLIENTE");
+                        Console.WriteLine("Nombre: JUAN | Apellido: PEREZ | Teléfono: 011-1512345678 | DNI: 12345678 | Correo Electrónico: admin@admin.com");
 
-            region_origen = consulta_region_origen();
-            direccion_origen = consulta_direccion("origen");
-            origen = $"{direccion_origen}, {region_origen}";
-            region_destino = consulta_region_destino();
-            direccion_destino = consulta_direccion("destino");
-            destino = $"{direccion_destino}, {region_destino}";
+                        region_origen = consulta_region_origen();
+                        direccion_origen = consulta_direccion("origen");
+                        origen = $"{direccion_origen}, {region_origen}";
+                        region_destino = consulta_region_destino();
+                        direccion_destino = consulta_direccion("destino");
+                        destino = $"{direccion_destino}, {region_destino}";
 
-            muestra_resumen_pedido(origen, destino);
-            Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
-            Console.WriteLine("Presione [Enter] para salir");
-            Console.ReadLine();
-        }
-        else // Aca seleccionó la opcion [5] de la consulta del peso
-        {
-            Console.WriteLine("Lo sentimos pero nuestro servicio solo admite paquetes menores a 30 kg. Hasta luego!");
-            Console.WriteLine("Presione [Enter] para salir");
-            Console.ReadLine();
-        }
+                        muestra_resumen_pedido(origen, destino);
+                        if (cont == cantidad_paquetes)
+                        {
+                            Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
+                            Console.WriteLine("Presione [Enter] para salir");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"------------------------------------\nNGRESE INFORMACIÓN DEL PAQUETE N° {cantidad_paquetes}:");
+                            continue;
+                        }
+                        Console.ReadLine();
+                    }
+                    else // Aca seleccionó la opcion [5] de la consulta del peso
+                    {
+                        Console.WriteLine("Lo sentimos pero nuestro servicio solo admite paquetes menores a 30 kg. Hasta luego!");
+                        Console.WriteLine("Presione [Enter] para salir");
+                        Console.ReadLine();
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("No ingreso un número válido!\n");
+                bandera_bultos = false;
+            }
+        } while (bandera_bultos == false);
+
     }
     else if (rsp_principal == "2") //Consultar estado de cuenta
     {
