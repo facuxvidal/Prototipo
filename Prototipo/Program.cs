@@ -24,59 +24,52 @@ if (login)
         bool bandera_bultos = true;
         do
         {
-            Console.WriteLine("Ingrese la cantidad de paquetes que desee enviar: ");
+            Console.WriteLine("------------------------------------\nIngrese la cantidad de paquetes o bultos que desee enviar en su pedido: ");
             string paquetes = Console.ReadLine();
             if (valida_entero(paquetes))
             {
-                int cantidad_paquetes = Convert.ToInt32(paquetes);
-                for (int cont = 1; cont <= cantidad_paquetes; cont++)
+                int contador_paquetes = 0;
+                do
                 {
-                    rsp_peso = consulta_peso_paquete();
+                    rsp_peso = consulta_peso_paquete(contador_paquetes);
                     List<string> posibles_respuestas_validas_peso = new List<string>();
                     posibles_respuestas_validas_peso.Add("1");
                     posibles_respuestas_validas_peso.Add("2");
                     posibles_respuestas_validas_peso.Add("3");
                     posibles_respuestas_validas_peso.Add("4");
+
                     if (posibles_respuestas_validas_peso.Contains(rsp_peso))
                     {
-                        Console.WriteLine("------------------------------------\nDATOS DEL CLIENTE");
-                        Console.WriteLine("Nombre: JUAN | Apellido: PEREZ | Teléfono: 011-1512345678 | DNI: 12345678 | Correo Electrónico: admin@admin.com");
-
-                        region_origen = consulta_region_origen();
-                        direccion_origen = consulta_direccion("origen");
-                        origen = $"{direccion_origen}, {region_origen}";
-                        region_destino = consulta_region_destino();
-                        direccion_destino = consulta_direccion("destino");
-                        destino = $"{direccion_destino}, {region_destino}";
-
-                        muestra_resumen_pedido(origen, destino);
-                        if (cont == cantidad_paquetes)
-                        {
-                            Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
-                            Console.WriteLine("Presione [Enter] para salir");
-                        }
-                        else
-                        {
-                            Console.WriteLine($"------------------------------------\nNGRESE INFORMACIÓN DEL PAQUETE N° {cantidad_paquetes}:");
-                            continue;
-                        }
-                        Console.ReadLine();
+                        contador_paquetes++;
                     }
-                    else // Aca seleccionó la opcion [5] de la consulta del peso
+                    else
                     {
-                        Console.WriteLine("Lo sentimos pero nuestro servicio solo admite paquetes menores a 30 kg. Hasta luego!");
-                        Console.WriteLine("Presione [Enter] para salir");
-                        Console.ReadLine();
+                        Console.WriteLine("------------------------------------\nLo sentimos pero nuestro servicio solo admite paquetes menores a 30 kg.");
                     }
-                }
+
+                } while (Convert.ToInt32(paquetes) != contador_paquetes);
+
+                Console.WriteLine("------------------------------------\nDATOS DEL CLIENTE");
+                Console.WriteLine("Nombre: JUAN | Apellido: PEREZ | Teléfono: 011-1512345678 | DNI: 12345678 | Correo Electrónico: admin@admin.com");
+
+                region_origen = consulta_region_origen();
+                direccion_origen = consulta_direccion("origen");
+                origen = $"{direccion_origen}, {region_origen}";
+                region_destino = consulta_region_destino();
+                direccion_destino = consulta_direccion("destino");
+                destino = $"{direccion_destino}, {region_destino}";
+
+                muestra_resumen_pedido(origen, destino, Convert.ToInt32(paquetes));
+                Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
+                Console.WriteLine("Presione [Enter] para salir");
+                Console.ReadLine();
             }
             else
             {
-                Console.WriteLine("No ingreso un número válido!\n");
+                Console.WriteLine("------------------------------------\nERROR - No se pudo validar el numero ingresado!");
                 bandera_bultos = false;
             }
-        } while (bandera_bultos == false);
-
+        } while (!bandera_bultos);
     }
     else if (rsp_principal == "2") //Consultar estado de cuenta
     {
@@ -223,11 +216,12 @@ bool valida_entero(string entero_a_validar)
 {
     bool rsp = true;
     int entero_validado;
-    try
+
+    if (!int.TryParse(entero_a_validar, out entero_validado))
     {
-        entero_validado = Convert.ToInt32(entero_a_validar);
+        rsp = false;
     }
-    catch (Exception)
+    else if(entero_validado <= 0)
     {
         rsp = false;
     }
@@ -235,7 +229,7 @@ bool valida_entero(string entero_a_validar)
 }
 
 
-string consulta_peso_paquete()
+string consulta_peso_paquete(int numero_paquete)
 {
     List<string> opciones_validas = new List<string>();
     opciones_validas.Add("1");
@@ -248,7 +242,7 @@ string consulta_peso_paquete()
     bool bandera = true;
     while (bandera)
     {
-        Console.WriteLine("------------------------------------\nIngrese un numero de acuerdo a la opcion que corresponda\n------------------------------------");
+        Console.WriteLine($"------------------------------------\nIngrese un numero de acuerdo al peso del paquete N° {numero_paquete + 1}\n------------------------------------");
         Console.WriteLine("[1] Menor o igual a 500gr \n[2] Mayor a 500gr y hasta 10 kg \n[3] Hasta 20 kg \n[4] Hasta 30 kg \n[5] Mayor");
         opcion_elegida = Console.ReadLine();
 
@@ -448,11 +442,20 @@ string consulta_direccion(string tipo_de_direccion)
 }
 
 
-void muestra_resumen_pedido(string origen, string destino)
+void muestra_resumen_pedido(string origen, string destino, int paquetes)
 {
-    Random numero_random = new Random();
-    Console.WriteLine($"------------------------------------\nRESUMEN DEL PEDIDO N°{numero_random.Next()}");
-    Console.WriteLine($"Producto: Smart TV 50' 4K UHD Philips | Tarifa: $100.000 | Origen: {origen} | Destino : {destino}");
+    int precio = 100000;
+    Random numero_pedido = new();
+    Console.WriteLine($"------------------------------------\nRESUMEN DEL PEDIDO N°{numero_pedido.Next()}");
+    
+    if (paquetes == 1)
+    {
+        Console.WriteLine($"Producto: {paquetes} unidad Smart TV 50' 4K UHD Philips | Tarifa: ${precio*paquetes} | Origen: {origen} | Destino : {destino}");
+    }
+    else
+    {
+        Console.WriteLine($"Productos: {paquetes} unidades Smart TV 50' 4K UHD Philips | Tarifa: ${precio * paquetes} | Origen: {origen} | Destino : {destino}");
+    }
 
     List<string> opciones_validas = new List<string>();
     opciones_validas.Add("1");
