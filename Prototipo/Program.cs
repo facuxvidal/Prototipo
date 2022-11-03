@@ -718,22 +718,22 @@ string consulto_sucursales()
     {
         case "1":
             {
-                rsp = "Sucursal de DEVOTO";
+                rsp = "Retiro por Sucursal de DEVOTO";
                 break;
             }
         case "2":
             {
-                rsp = "Sucursal de CABALLITO";
+                rsp = "Retiro por Sucursal de CABALLITO";
                 break;
             }
         case "3":
             {
-                rsp = "Sucursal de RECOLETA";
+                rsp = "Retiro por Sucursal de RECOLETA";
                 break;
             }
         case "4":
             {
-                rsp = "Sucursal de LINIERS";
+                rsp = "Retiro por Sucursal de LINIERS";
                 break;
             }
         default:
