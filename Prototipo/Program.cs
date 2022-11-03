@@ -1,5 +1,6 @@
-﻿
-using System.Diagnostics.Metrics;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using System.Security.Cryptography;
 
 Console.WriteLine("------------------------------------\nBIENVENIDO\n------------------------------------");
 
@@ -15,7 +16,10 @@ if (login)
     string origen;
     string destino;
     string rsp_estado_de_cuenta;
-    string numero_orden;
+    Dictionary<int, List<string>> orden = null;
+    string retiro_o_entrega;
+    string sucursal_de_retiro;
+    bool urgente;
     Console.WriteLine("------------------------------------\nUSTED ES CLIENTE CORPORATIVO");
 
     rsp_principal = menu_principal();
@@ -52,14 +56,42 @@ if (login)
                 Console.WriteLine("------------------------------------\nDATOS DEL CLIENTE");
                 Console.WriteLine("Nombre: JUAN | Apellido: PEREZ | Teléfono: 011-1512345678 | DNI: 12345678 | Correo Electrónico: admin@admin.com");
 
-                region_origen = consulta_region_origen();
-                direccion_origen = consulta_direccion("origen");
-                origen = $"{direccion_origen}, {region_origen}";
-                region_destino = consulta_region_destino();
-                direccion_destino = consulta_direccion("destino");
-                destino = $"{direccion_destino}, {region_destino}";
+                urgente = consulta_urgencia();
 
-                muestra_resumen_pedido(origen, destino, Convert.ToInt32(paquetes));
+                // Consulta direcion de entrega o retiro ORIGEN
+                region_origen = consulta_region_origen();
+                retiro_o_entrega = consulta_retiro_entrega();
+                if (retiro_o_entrega == "Entrega a Domicilio")
+                {
+                    direccion_origen = consulta_direccion("origen");
+                    origen = $"{direccion_origen}, {region_origen}";
+                }
+                else
+                {
+                    sucursal_de_retiro = consulto_sucursales();
+                    origen = $"{sucursal_de_retiro}";
+                }
+
+                // Consulta direcion de entrega o retiro DESTINO
+                region_destino = consulta_region_destino();
+                retiro_o_entrega = consulta_retiro_entrega();
+                if (retiro_o_entrega == "Entrega a Domicilio")
+                {
+                    direccion_destino = consulta_direccion("destino");
+                    destino = $"{direccion_destino}, {region_destino}";
+                }
+                else
+                {
+                    sucursal_de_retiro = consulto_sucursales();
+                    destino = $"{sucursal_de_retiro}";
+                }
+
+                muestra_resumen_pedido(origen, destino, Convert.ToInt32(paquetes), urgente);
+
+                // Mostramos saldo de cuenta corporativa al realizar el pedido 
+                Console.WriteLine("------------------------------------\nSALDO DE SU CUENTA");
+                Console.WriteLine("El saldo final de su Estado de cuenta es: $54.340");
+
                 Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
                 Console.WriteLine("Presione [Enter] para salir");
                 Console.ReadLine();
@@ -76,9 +108,13 @@ if (login)
         rsp_estado_de_cuenta = consulta_estado_de_cuenta();
         if (rsp_estado_de_cuenta == "1")
         {
-            Console.WriteLine("------------------------------------\nDATOS DE LA FACTURACION");
-            Console.WriteLine("Punto de venta: Pinamar | N°Factura: 0001-452834024 | CUIT: 20123456783 | Fecha: 16/10/2022 | Tarifa: $100.000 | Precio final: $124.500 | Vencimiento: 16/11/2022");
-            Console.WriteLine("Estado de la Factura N°0001-452834024: IMPAGA");
+            Console.WriteLine("------------------------------------\nDATOS DE LA FACTURACION\n------------------------------------");
+            Console.WriteLine("Servicio N°: 823053 \nTarifa: $100.000 \nFecha Desde: 16/10/2022 \nFecha Hasta: 16/11/2022 \nEstado: IMPAGA");
+            Console.WriteLine("------------------------------------");
+            Console.WriteLine("Servicio N°: 100235 \nTarifa: $23.500 \nFecha Desde: 02/11/2022 \nFecha Hasta: 02/12/2022 \nEstado: PAGA");
+            Console.WriteLine("------------------------------------");
+            Console.WriteLine("Precio Total para la Factura N°0001-452834024: $123.500");
+            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
             Console.WriteLine("Presione [Enter] para salir");
             Console.ReadLine();
@@ -98,7 +134,7 @@ if (login)
         else if (rsp_estado_de_cuenta == "3")
         {
             Console.WriteLine("------------------------------------\nSALDO DE SU CUENTA");
-            Console.WriteLine("El saldo final de su Estado de cuenta es: $54.340");
+            Console.WriteLine("El saldo final de su Estado de cuenta es: $154.340");
             Console.WriteLine("Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto!");
             Console.WriteLine("Presione [Enter] para salir");
             Console.ReadLine();
@@ -112,9 +148,9 @@ if (login)
     }
     else if (rsp_principal == "3") //Consultar seguimiento de pedido
     {
-        numero_orden = consulta_numero_orden();
-        Console.WriteLine("------------------------------------\nDATOS DEL SEGUIMIENTO");
-        Console.WriteLine($"Número de orden: {numero_orden} | Estado: ENTREGADO | Entrega estimada: {DateTime.Now.AddDays(-10).ToString().Substring(0, 10)}");
+        orden = consulta_numero_orden();
+        Console.WriteLine("------------------------------------\nDATOS DEL SEGUIMIENTO\n------------------------------------");
+        Console.WriteLine($"Número de orden: {orden.First().Key} \nOrigen: {orden.First().Value[1]} \nDestino: {orden.First().Value[2]} \nTipoDeServicio: {orden.First().Value[0]}");
 
         Console.WriteLine($"Muchas gracias por utilizar nuestra aplicación! Esperamos verlo pronto.");
         Console.WriteLine("Presione [Enter] para salir");
@@ -221,7 +257,7 @@ bool valida_entero(string entero_a_validar)
     {
         rsp = false;
     }
-    else if(entero_validado <= 0)
+    else if (entero_validado <= 0)
     {
         rsp = false;
     }
@@ -426,7 +462,7 @@ string consulta_direccion(string tipo_de_direccion)
     bool bandera = true;
     while (bandera)
     {
-        Console.WriteLine($"------------------------------------\nIngrese su dirección de {tipo_de_direccion}/sucursal: Calle, Altura, Departamento y Código Postal:");
+        Console.WriteLine($"------------------------------------\nIngrese su dirección de {tipo_de_direccion}: Calle, Altura, Departamento y Código Postal:");
         direccion_origen = Console.ReadLine().Trim();
         if (String.IsNullOrEmpty(direccion_origen))
         {
@@ -442,19 +478,19 @@ string consulta_direccion(string tipo_de_direccion)
 }
 
 
-void muestra_resumen_pedido(string origen, string destino, int paquetes)
+void muestra_resumen_pedido(string origen, string destino, int paquetes, bool urgente)
 {
     int precio = 100000;
     Random numero_pedido = new();
     Console.WriteLine($"------------------------------------\nRESUMEN DEL PEDIDO N°{numero_pedido.Next()}");
-    
+
     if (paquetes == 1)
     {
-        Console.WriteLine($"Producto: {paquetes} unidad Smart TV 50' 4K UHD Philips | Tarifa: ${precio*paquetes} | Origen: {origen} | Destino : {destino}");
+        Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${precio * paquetes} \nOrigen: {origen} \nDestino: {destino}");
     }
     else
     {
-        Console.WriteLine($"Productos: {paquetes} unidades Smart TV 50' 4K UHD Philips | Tarifa: ${precio * paquetes} | Origen: {origen} | Destino : {destino}");
+        Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${precio * paquetes} \nOrigen: {origen} \nDestino: {destino}");
     }
 
     List<string> opciones_validas = new List<string>();
@@ -532,8 +568,9 @@ string consulta_estado_de_cuenta()
 }
 
 
-string consulta_numero_orden()
+Dictionary<int, List<string>> consulta_numero_orden()
 {
+
     List<string> numeros_de_ordenes_vigentes = new List<string>();
     numeros_de_ordenes_vigentes.Add("823053");
     numeros_de_ordenes_vigentes.Add("373823");
@@ -569,11 +606,192 @@ string consulta_numero_orden()
         }
     }
 
-    return numero_orden;
+    // Hacer que los datos cambien segun el numero de orden
+    List<string> datos = new List<string>() {
+        "Urgente", "La Pampa", "Chaco"
+    };
+
+    Dictionary<int, List<string>> datos_de_servicio = new Dictionary<int, List<string>>()
+    {
+        {int.Parse(numero_orden), datos}
+    };
+
+    return datos_de_servicio;
 }
 
 
-public static class VariablesGlobales
+string consulta_retiro_entrega()
 {
-    public static List<string> OPCIONES_VALIDAS = new List<string>();
+    List<string> opciones_validas = new List<string>();
+    opciones_validas.Add("1");
+    opciones_validas.Add("2");
+
+    string opcion_elegida = "";
+    bool bandera = true;
+    while (bandera)
+    {
+        Console.WriteLine($"------------------------------------\nIngrese un número según la opción de entrega/retiro que le parezca mas comodo\n------------------------------------");
+        Console.WriteLine("[1] Retiro en Sucursal \n[2] Entrega a Domicilio");
+        opcion_elegida = Console.ReadLine();
+
+        if (String.IsNullOrEmpty(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion.");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else if (!valida_entero(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - No se pudo validar el numero ingresado!");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else if (!opciones_validas.Contains(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - Marcó una opcion fuera del intervalo propuesto!");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else
+        {
+            bandera = false;
+        }
+    }
+
+    string rsp;
+    switch (opcion_elegida)
+    {
+        case "1":
+            {
+                rsp = "Retiro en Sucursal";
+                break;
+            }
+        case "2":
+            {
+                rsp = "Entrega a Domicilio";
+                break;
+            }
+        default:
+            rsp = "Sin Identificar";
+            break;
+    }
+    return rsp;
+}
+
+
+string consulto_sucursales()
+{
+    List<string> opciones_validas = new List<string>();
+    opciones_validas.Add("1");
+    opciones_validas.Add("2");
+    opciones_validas.Add("3");
+    opciones_validas.Add("4");
+
+    string opcion_elegida = "";
+    bool bandera = true;
+    while (bandera)
+    {
+        Console.WriteLine($"------------------------------------\nIngrese un número dependiendo de la sucursal de retiro donde desea pasar a buscar su pedido\n------------------------------------");
+        Console.WriteLine("[1] DEVOTO \n[2] CABALLITO \n[3] RECOLETA \n[4] LINIERS");
+        opcion_elegida = Console.ReadLine();
+
+        if (String.IsNullOrEmpty(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion.");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else if (!valida_entero(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - No se pudo validar el numero ingresado!");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else if (!opciones_validas.Contains(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - Marcó una opcion fuera del intervalo propuesto!");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else
+        {
+            bandera = false;
+        }
+    }
+
+    string rsp;
+    switch (opcion_elegida)
+    {
+        case "1":
+            {
+                rsp = "Sucursal de DEVOTO";
+                break;
+            }
+        case "2":
+            {
+                rsp = "Sucursal de CABALLITO";
+                break;
+            }
+        case "3":
+            {
+                rsp = "Sucursal de RECOLETA";
+                break;
+            }
+        case "4":
+            {
+                rsp = "Sucursal de LINIERS";
+                break;
+            }
+        default:
+            rsp = "Sin Identificar";
+            break;
+    }
+    return rsp;
+}
+
+
+bool consulta_urgencia()
+{
+    List<string> opciones_validas = new List<string>();
+    opciones_validas.Add("1");
+    opciones_validas.Add("2");
+
+    string opcion_elegida = "";
+    bool bandera = true;
+    while (bandera)
+    {
+        Console.WriteLine("------------------------------------\nPor favor responder correctamente: ¿Es urgente el envio de este pedido? Ingrese el número segén corresponda");
+        Console.WriteLine("[1] Si \n[2] No");
+        opcion_elegida = Console.ReadLine();
+
+        if (String.IsNullOrEmpty(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion.");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else if (!valida_entero(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - No se pudo validar el numero ingresado!");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else if (!opciones_validas.Contains(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - Marcó una opcion fuera del intervalo propuesto!");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else
+        {
+            bandera = false;
+        }
+    }
+
+    bool rsp = false;
+    switch (opcion_elegida)
+    {
+        case "1":
+            {
+                rsp = true;
+                break;
+            }
+        case "2":
+            {
+                rsp = false;
+                break;
+            }
+    }
+    return rsp;
 }
