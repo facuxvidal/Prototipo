@@ -33,6 +33,7 @@ if (login)
             if (valida_entero(paquetes))
             {
                 int contador_paquetes = 0;
+                bool retiro_domicilio, entrega_domicilio;
                 do
                 {
                     rsp_peso = consulta_peso_paquete(contador_paquetes);
@@ -60,33 +61,37 @@ if (login)
 
                 // Consulta direcion de entrega o retiro ORIGEN
                 region_origen = consulta_region_origen();
-                retiro_o_entrega = consulta_retiro_entrega();
-                if (retiro_o_entrega == "Entrega a Domicilio")
+                retiro_o_entrega = consulta_retiro();
+                if (retiro_o_entrega == "Recoleccion del Domicilio")
                 {
                     direccion_origen = consulta_direccion("origen");
                     origen = $"{direccion_origen}, {region_origen}";
+                    entrega_domicilio = true;
                 }
                 else
                 {
                     sucursal_de_retiro = consulto_sucursales();
                     origen = $"{sucursal_de_retiro}";
+                    entrega_domicilio = false;
                 }
 
                 // Consulta direcion de entrega o retiro DESTINO
                 region_destino = consulta_region_destino();
-                retiro_o_entrega = consulta_retiro_entrega();
+                retiro_o_entrega = consulta_entrega();
                 if (retiro_o_entrega == "Entrega a Domicilio")
                 {
                     direccion_destino = consulta_direccion("destino");
                     destino = $"{direccion_destino}, {region_destino}";
+                    retiro_domicilio = true;
                 }
                 else
                 {
                     sucursal_de_retiro = consulto_sucursales();
                     destino = $"{sucursal_de_retiro}";
+                    retiro_domicilio = false;
                 }
 
-                muestra_resumen_pedido(origen, destino, Convert.ToInt32(paquetes), urgente);
+                muestra_resumen_pedido(origen, destino, Convert.ToInt32(paquetes), urgente, retiro_domicilio, entrega_domicilio);
 
                 // Mostramos saldo de cuenta corporativa al realizar el pedido 
                 Console.WriteLine("------------------------------------\nSALDO DE SU CUENTA");
@@ -478,33 +483,43 @@ string consulta_direccion(string tipo_de_direccion)
 }
 
 
-void muestra_resumen_pedido(string origen, string destino, int paquetes, bool urgente)
+void muestra_resumen_pedido(string origen, string destino, int paquetes, bool urgente, bool retiro_domicilio, bool entrega_domicilio)
 {
     int precio = 100000;
     Random numero_pedido = new();
     Console.WriteLine($"------------------------------------\nRESUMEN DEL PEDIDO N°{numero_pedido.Next()}");
     int adicional_urgente = 500;
+    int acumulador_domicilio = 0;
+
+    if (retiro_domicilio)
+    {
+        acumulador_domicilio += 300;
+    }
+    if (entrega_domicilio)
+    {
+        acumulador_domicilio += 300;
+    }
 
     if (urgente)
     {
         if (paquetes == 1)
         {
-            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${(precio * paquetes) + adicional_urgente} \nOrigen: {origen} \nDestino: {destino}");
+            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${(precio * paquetes) + adicional_urgente + acumulador_domicilio} \nOrigen: {origen} \nDestino: {destino}");
         }
         else
         {
-            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${(precio * paquetes) + adicional_urgente} \nOrigen: {origen} \nDestino: {destino}");
+            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${(precio * paquetes) + adicional_urgente + acumulador_domicilio} \nOrigen: {origen} \nDestino: {destino}");
         }
     }
     else
     {
         if (paquetes == 1)
         {
-            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${precio * paquetes} \nOrigen: {origen} \nDestino: {destino}");
+            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${(precio * paquetes) + acumulador_domicilio} \nOrigen: {origen} \nDestino: {destino}");
         }
         else
         {
-            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${precio * paquetes} \nOrigen: {origen} \nDestino: {destino}");
+            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${(precio * paquetes) + acumulador_domicilio} \nOrigen: {origen} \nDestino: {destino}");
         }
     }
  
@@ -636,7 +651,62 @@ Dictionary<int, List<string>> consulta_numero_orden()
 }
 
 
-string consulta_retiro_entrega()
+string consulta_retiro()
+{
+    List<string> opciones_validas = new List<string>();
+    opciones_validas.Add("1");
+    opciones_validas.Add("2");
+
+    string opcion_elegida = "";
+    bool bandera = true;
+    while (bandera)
+    {
+        Console.WriteLine($"------------------------------------\nIngrese un número según la opción de entrega/retiro que le parezca mas comodo\n------------------------------------");
+        Console.WriteLine("[1] Dejarlo en Sucursal \n[2] Recoleccion del Domicilio");
+        opcion_elegida = Console.ReadLine();
+
+        if (String.IsNullOrEmpty(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion.");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else if (!valida_entero(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - No se pudo validar el numero ingresado!");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else if (!opciones_validas.Contains(opcion_elegida))
+        {
+            Console.WriteLine("------------------------------------\nERROR - Marcó una opcion fuera del intervalo propuesto!");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else
+        {
+            bandera = false;
+        }
+    }
+
+    string rsp;
+    switch (opcion_elegida)
+    {
+        case "1":
+            {
+                rsp = "Dejarlo en Sucursal";
+                break;
+            }
+        case "2":
+            {
+                rsp = "Recoleccion del Domicilio";
+                break;
+            }
+        default:
+            rsp = "Sin Identificar";
+            break;
+    }
+    return rsp;
+}
+
+string consulta_entrega()
 {
     List<string> opciones_validas = new List<string>();
     opciones_validas.Add("1");
