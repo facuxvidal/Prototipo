@@ -28,15 +28,15 @@ if (login)
         bool bandera_bultos = true;
         do
         {
-            Console.WriteLine("------------------------------------\nIngrese la cantidad de paquetes o bultos que desee enviar en su pedido: ");
-            string paquetes = Console.ReadLine();
-            if (valida_entero(paquetes))
+            Console.WriteLine("------------------------------------\nIngrese la cantidad de Encomiendas o Correspondencia que desee enviar en su pedido: ");
+            string encomiendas = Console.ReadLine();
+            if (valida_entero(encomiendas))
             {
-                int contador_paquetes = 0;
+                int contador_encomiendas = 0;
                 bool retiro_domicilio, entrega_domicilio;
                 do
                 {
-                    rsp_peso = consulta_peso_paquete(contador_paquetes);
+                    rsp_peso = consulta_peso_encomienda(contador_encomiendas);
                     List<string> posibles_respuestas_validas_peso = new List<string>();
                     posibles_respuestas_validas_peso.Add("1");
                     posibles_respuestas_validas_peso.Add("2");
@@ -45,14 +45,14 @@ if (login)
 
                     if (posibles_respuestas_validas_peso.Contains(rsp_peso))
                     {
-                        contador_paquetes++;
+                        contador_encomiendas++;
                     }
                     else
                     {
-                        Console.WriteLine("------------------------------------\nLo sentimos pero nuestro servicio solo admite paquetes menores a 30 kg.");
+                        Console.WriteLine("------------------------------------\nLo sentimos pero nuestro servicio solo admite encomiendas menores a 30 kg.");
                     }
 
-                } while (Convert.ToInt32(paquetes) != contador_paquetes);
+                } while (Convert.ToInt32(encomiendas) != contador_encomiendas);
 
                 Console.WriteLine("------------------------------------\nDATOS DEL CLIENTE");
                 Console.WriteLine("Nombre: JUAN | Apellido: PEREZ | Teléfono: 011-1512345678 | DNI: 12345678 | Correo Electrónico: admin@admin.com");
@@ -64,7 +64,7 @@ if (login)
                 retiro_o_entrega = consulta_retiro();
                 if (retiro_o_entrega == "Recoleccion del Domicilio")
                 {
-                    direccion_origen = consulta_direccion("origen");
+                    direccion_origen = consulta_direccion_nacional("origen");
                     origen = $"{direccion_origen}, {region_origen}";
                     entrega_domicilio = true;
                 }
@@ -76,22 +76,34 @@ if (login)
                 }
 
                 // Consulta direcion de entrega o retiro DESTINO
-                region_destino = consulta_region_destino();
-                retiro_o_entrega = consulta_entrega();
-                if (retiro_o_entrega == "Entrega a Domicilio")
+                region_destino = consulta_intenacional_destino();
+                
+                if (region_destino == "Argentina")
                 {
-                    direccion_destino = consulta_direccion("destino");
-                    destino = $"{direccion_destino}, {region_destino}";
-                    retiro_domicilio = true;
+                    retiro_o_entrega = consulta_entrega();
+                    if (retiro_o_entrega == "Entrega a Domicilio")
+                    {
+                        direccion_destino = consulta_direccion_nacional("destino");
+                        destino = $"{direccion_destino}, {region_destino}";
+                        retiro_domicilio = true;
+                    }
+                    else
+                    {
+                        sucursal_de_retiro = consulto_sucursales();
+                        destino = $"{sucursal_de_retiro}";
+                        retiro_domicilio = false;
+                    }
                 }
                 else
                 {
-                    sucursal_de_retiro = consulto_sucursales();
-                    destino = $"{sucursal_de_retiro}";
-                    retiro_domicilio = false;
+
+                    direccion_destino = consulta_direccion_internacional("destino");
+                    
+                    destino = $"{direccion_destino}, {region_destino}";
+                    retiro_domicilio = true;
                 }
 
-                muestra_resumen_pedido(origen, destino, Convert.ToInt32(paquetes), urgente, retiro_domicilio, entrega_domicilio);
+                muestra_resumen_pedido(origen, destino, Convert.ToInt32(encomiendas), urgente, retiro_domicilio, entrega_domicilio, region_destino);
 
                 // Mostramos saldo de cuenta corporativa al realizar el pedido 
                 Console.WriteLine("------------------------------------\nSALDO DE SU CUENTA");
@@ -270,7 +282,7 @@ bool valida_entero(string entero_a_validar)
 }
 
 
-string consulta_peso_paquete(int numero_paquete)
+string consulta_peso_encomienda(int numero_encomienda)
 {
     List<string> opciones_validas = new List<string>();
     opciones_validas.Add("1");
@@ -283,7 +295,7 @@ string consulta_peso_paquete(int numero_paquete)
     bool bandera = true;
     while (bandera)
     {
-        Console.WriteLine($"------------------------------------\nIngrese un numero de acuerdo al peso del paquete N° {numero_paquete + 1}\n------------------------------------");
+        Console.WriteLine($"------------------------------------\nIngrese un numero de acuerdo al peso del encomienda/correspondencia N° {numero_encomienda + 1}\n------------------------------------");
         Console.WriteLine("[1] Menor o igual a 500gr \n[2] Mayor a 500gr y hasta 10 kg \n[3] Hasta 20 kg \n[4] Hasta 30 kg \n[5] Mayor");
         opcion_elegida = Console.ReadLine();
 
@@ -315,33 +327,49 @@ string consulta_peso_paquete(int numero_paquete)
 string consulta_region_origen()
 {
     List<string> opciones_validas = new List<string>();
-    opciones_validas.Add("1");
-    opciones_validas.Add("2");
-    opciones_validas.Add("3");
-    opciones_validas.Add("4");
+    opciones_validas.Add("CABA");
+    opciones_validas.Add("BUENOS AIRES");
+    opciones_validas.Add("CORDOBA");
+    opciones_validas.Add("SAN JUAN");
+    opciones_validas.Add("SAN LUIS");
+    opciones_validas.Add("SANTA CRUZ");
+    opciones_validas.Add("CHUBUT");
+    opciones_validas.Add("RIO NEGRO");
+    opciones_validas.Add("NEUQUEN");
+    opciones_validas.Add("LA PAMPA");
+    opciones_validas.Add("TIERRA DEL FUEGO");
+    opciones_validas.Add("MENDOZA");
+    opciones_validas.Add("LA RIOJA");
+    opciones_validas.Add("ENTRE RIOS");
+    opciones_validas.Add("SANTA FE");        
+    opciones_validas.Add("CORRIENTES");
+    opciones_validas.Add("MISIONES");
+    opciones_validas.Add("CHACO");
+    opciones_validas.Add("CATAMARCA"); 
+    opciones_validas.Add("SANTIAGO DEL ESTERO");
+    opciones_validas.Add("TUCUMAN");
+    opciones_validas.Add("FORMOSA");
+    opciones_validas.Add("SALTA");
+    opciones_validas.Add("JUJUY");
+
 
     string opcion_elegida = "";
     bool bandera = true;
 
     while (bandera)
     {
-        Console.WriteLine("------------------------------------\nIngrese un numero de acuerdo a la región de origen que corresponda\n------------------------------------");
-        Console.WriteLine("[1] VIEDMA \n[2] CORDOBA \n[3] RESISTENCIA \n[4] CABA/BUENOS AIRES");
+        Console.WriteLine("------------------------------------\nIngrese la provincia de origen(sin tildes):  ");
+        
         opcion_elegida = Console.ReadLine();
 
         if (String.IsNullOrEmpty(opcion_elegida))
         {
-            Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion.");
+            Console.WriteLine("------------------------------------\nERROR - No ingreso ninguna provincia.");
             Console.WriteLine("------------------------------------\nIntente nuevamente!");
         }
-        else if (!valida_entero(opcion_elegida))
+        else if (!opciones_validas.Contains(opcion_elegida.ToUpper().Trim()))
         {
-            Console.WriteLine("------------------------------------\nERROR - No se pudo validar el numero ingresado!");
-            Console.WriteLine("------------------------------------\nIntente nuevamente!");
-        }
-        else if (!opciones_validas.Contains(opcion_elegida))
-        {
-            Console.WriteLine("------------------------------------\nERROR - Marcó una opcion fuera del intervalo propuesto!");
+            Console.WriteLine("------------------------------------\nERROR - Ingreso una provincia inexistente!");
             Console.WriteLine("------------------------------------\nIntente nuevamente!");
         }
         else
@@ -350,56 +378,22 @@ string consulta_region_origen()
         }
     }
 
-    string rsp;
-    switch (opcion_elegida)
-    {
-        case "1":
-            {
-                rsp = "VIEDMA";
-                break;
-            }
-        case "2":
-            {
-                rsp = "CORDOBA";
-                break;
-            }
-        case "3":
-            {
-                rsp = "RESISTENCIA";
-                break;
-            }
-        case "4":
-            {
-                rsp = "CABA / BUENOS AIRES";
-                break;
-            }
-        default:
-            rsp = "Sin Identificar";
-            break;
-    }
-    return rsp;
+    return opcion_elegida;
 }
 
-
-string consulta_region_destino()
+string consulta_intenacional_destino()
 {
+    string opcion_elegida = "";
+    bool flag = true;
+    string rsp = "";
     List<string> opciones_validas = new List<string>();
     opciones_validas.Add("1");
     opciones_validas.Add("2");
-    opciones_validas.Add("3");
-    opciones_validas.Add("4");
-    opciones_validas.Add("5");
-    opciones_validas.Add("6");
 
-    string opcion_elegida = "";
-    bool bandera = true;
-
-    while (bandera)
+    while (flag)
     {
-        Console.WriteLine("------------------------------------\nIngrese un numero de acuerdo a la región de destino que corresponda\n------------------------------------");
-        Console.WriteLine("[1] PAÍSES LIMÍTROFES \n[2] RESTO DE AMÉRICA LATINA \n[3] AMÉRICA DEL NORTE \n[4] EUROPA \n[5] ASIA \n[6] ARGENTINA ");
+        Console.WriteLine("¿Desea enviar su encomienda/correspondencia dentro de Argentina?: \n[1] SI \n[2] NO");
         opcion_elegida = Console.ReadLine();
-
         if (String.IsNullOrEmpty(opcion_elegida))
         {
             Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion.");
@@ -417,51 +411,40 @@ string consulta_region_destino()
         }
         else
         {
-            bandera = false;
+            flag = false;
+        }
+
+     
+    }
+    if (opcion_elegida == "1")
+    {
+        rsp = "Argentina"; 
+    }
+    else if (opcion_elegida == "2")
+    {
+        bool flag2 = true;
+        while (flag2)
+        {
+            Console.WriteLine("Ingrese el Pais de destino:  ");
+            rsp = Console.ReadLine();
+            if (String.IsNullOrEmpty(rsp))
+            {
+                Console.WriteLine("------------------------------------\nERROR - No seleccionó ninguna opcion.");
+                Console.WriteLine("------------------------------------\nIntente nuevamente!");
+            }
+            else
+            {
+                flag2 = false;
+            }
+            
         }
     }
-    string rsp;
-    switch (opcion_elegida)
-    {
-        case "1":
-            {
-                rsp = "PAÍSES LIMÍTROFES";
-                break;
-            }
-        case "2":
-            {
-                rsp = "RESTO DE AMÉRICA LATINA";
-                break;
-            }
-        case "3":
-            {
-                rsp = "AMÉRICA DEL NORTE";
-                break;
-            }
-        case "4":
-            {
-                rsp = "EUROPA";
-                break;
-            }
-        case "5":
-            {
-                rsp = "ASIA";
-                break;
-            }
-        case "6":
-            {
-                rsp = "ARGENTINA";
-                break;
-            }
-        default:
-            rsp = "Sin Identificar";
-            break;
-    }
     return rsp;
+
 }
 
 
-string consulta_direccion(string tipo_de_direccion)
+string consulta_direccion_nacional(string tipo_de_direccion)
 {
     string direccion_origen = "";
     bool bandera = true;
@@ -482,14 +465,36 @@ string consulta_direccion(string tipo_de_direccion)
     return direccion_origen;
 }
 
+string consulta_direccion_internacional(string tipo_de_direccion)
+{
+    string direccion_destino = "";
+    bool bandera = true;
+    while (bandera)
+    {
+        Console.WriteLine($"------------------------------------\nIngrese su dirección de {tipo_de_direccion}: Calle, Altura, Departamento y Ciudad  ");
+        direccion_destino = Console.ReadLine().Trim();
+        if (String.IsNullOrEmpty(direccion_destino))
+        {
+            Console.WriteLine("------------------------------------\nERROR - Deberá aclarar una direccion valida!");
+            Console.WriteLine("------------------------------------\nIntente nuevamente!");
+        }
+        else
+        {
+            bandera = false;
+        }
+    }
+    return direccion_destino;
+}
 
-void muestra_resumen_pedido(string origen, string destino, int paquetes, bool urgente, bool retiro_domicilio, bool entrega_domicilio)
+
+void muestra_resumen_pedido(string origen, string destino, int encomiendas, bool urgente, bool retiro_domicilio, bool entrega_domicilio, string es_internacional)
 {
     int precio = 100000;
     Random numero_pedido = new();
     Console.WriteLine($"------------------------------------\nRESUMEN DEL PEDIDO N°{numero_pedido.Next()}");
     int adicional_urgente = 500;
     int acumulador_domicilio = 0;
+    int adicional_internacional = 0;
 
     if (retiro_domicilio)
     {
@@ -499,27 +504,31 @@ void muestra_resumen_pedido(string origen, string destino, int paquetes, bool ur
     {
         acumulador_domicilio += 300;
     }
+    if (es_internacional != "Argentina")
+    {
+        adicional_internacional = 2000;
+    }
 
     if (urgente)
     {
-        if (paquetes == 1)
+        if (encomiendas == 1)
         {
-            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${(precio * paquetes) + adicional_urgente + acumulador_domicilio} \nOrigen: {origen} \nDestino: {destino}");
+            Console.WriteLine($"Encomienda/correspondencia a enviar: {encomiendas} \nTarifa: ${(precio * encomiendas) + adicional_urgente + acumulador_domicilio + adicional_internacional} \nOrigen: {origen} \nDestino: {destino}");
         }
         else
         {
-            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${(precio * paquetes) + adicional_urgente + acumulador_domicilio} \nOrigen: {origen} \nDestino: {destino}");
+            Console.WriteLine($"Encomiendas/correspondencias a enviar: {encomiendas} \nTarifa: ${(precio * encomiendas) + adicional_urgente + acumulador_domicilio + adicional_internacional} \nOrigen: {origen} \nDestino: {destino}");
         }
     }
     else
     {
-        if (paquetes == 1)
+        if (encomiendas == 1)
         {
-            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${(precio * paquetes) + acumulador_domicilio} \nOrigen: {origen} \nDestino: {destino}");
+            Console.WriteLine($"Encomienda/correspondencia a enviar: {encomiendas} \nTarifa: ${(precio * encomiendas) + acumulador_domicilio + adicional_internacional} \nOrigen: {origen} \nDestino: {destino}");
         }
         else
         {
-            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${(precio * paquetes) + acumulador_domicilio} \nOrigen: {origen} \nDestino: {destino}");
+            Console.WriteLine($"Encomiendas/correspondencias a enviar: {encomiendas} \nTarifa: ${(precio * encomiendas) + acumulador_domicilio + adicional_internacional} \nOrigen: {origen} \nDestino: {destino}");
         }
     }
  
