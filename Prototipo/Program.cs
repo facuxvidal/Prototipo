@@ -483,15 +483,31 @@ void muestra_resumen_pedido(string origen, string destino, int paquetes, bool ur
     int precio = 100000;
     Random numero_pedido = new();
     Console.WriteLine($"------------------------------------\nRESUMEN DEL PEDIDO N°{numero_pedido.Next()}");
+    int adicional_urgente = 500;
 
-    if (paquetes == 1)
+    if (urgente)
     {
-        Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${precio * paquetes} \nOrigen: {origen} \nDestino: {destino}");
+        if (paquetes == 1)
+        {
+            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${(precio * paquetes) + adicional_urgente} \nOrigen: {origen} \nDestino: {destino}");
+        }
+        else
+        {
+            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${(precio * paquetes) + adicional_urgente} \nOrigen: {origen} \nDestino: {destino}");
+        }
     }
     else
     {
-        Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${precio * paquetes} \nOrigen: {origen} \nDestino: {destino}");
+        if (paquetes == 1)
+        {
+            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${precio * paquetes} \nOrigen: {origen} \nDestino: {destino}");
+        }
+        else
+        {
+            Console.WriteLine($"Paquetes a enviar: {paquetes} \nTarifa: ${precio * paquetes} \nOrigen: {origen} \nDestino: {destino}");
+        }
     }
+ 
 
     List<string> opciones_validas = new List<string>();
     opciones_validas.Add("1");
