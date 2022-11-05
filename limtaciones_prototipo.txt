@@ -7,23 +7,19 @@ Contraseña: admin
 - Consultar estado de cuenta
 - Consultar seguimiento de pedido
 
-3) Tendrá disponibles las opciones de región de origen: 
-- Viedma 
-- Córdoba 
-- Resistencia 
-- CABA / Buenos Aires
+3) No se pueden enviar encomiendas de más de 30 kg.
 
-4) Tendrá disponibles las opciones de región de destino: 
-- PAÍSES LIMÍTROFES 
-- RESTO DE AMÉRICA LATINA  
-- AMÉRICA DEL NORTE 
-- EUROPA 
-- ASIA  
-- ARGENTINA
+4) Si es urgente se suma un monto de 500$.
 
-5) Se pueden consultar por lo siguientes numeros de orden de pedido: 823053,373823,100284,100235,324441
+5) Si se retira o se lleva a domicilio se aplica un recargo de 300$.
 
-6) No tendra disponible la opción de retiro en puerta. 
+6) En caso de que sea internacional se aplica un recargo de 2000$.
+
+7) Tendrá disponible únicamente 4 sucursales de retiro/entrega provisoriamente, sin importar que provincia se elija.
+
+8) Se pueden consultar por lo siguientes numeros de orden de pedido: 823053,373823,100284,100235,324441
+
+9) Se utiliza como ejemplo que el producto a enviar es uno o más Smart TV por defecto.
 
 
 
