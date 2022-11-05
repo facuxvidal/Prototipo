@@ -16,6 +16,7 @@ if (login)
     string origen;
     string destino;
     string rsp_estado_de_cuenta;
+    string provincia_destino;
     Dictionary<int, List<string>> orden = null;
     string retiro_o_entrega;
     string sucursal_de_retiro;
@@ -60,7 +61,7 @@ if (login)
                 urgente = consulta_urgencia();
 
                 // Consulta direcion de entrega o retiro ORIGEN
-                region_origen = consulta_region_origen();
+                region_origen = consulta_region("origen");
                 retiro_o_entrega = consulta_retiro();
                 if (retiro_o_entrega == "Recoleccion del Domicilio")
                 {
@@ -80,17 +81,20 @@ if (login)
                 
                 if (region_destino == "Argentina")
                 {
+
                     retiro_o_entrega = consulta_entrega();
                     if (retiro_o_entrega == "Entrega a Domicilio")
                     {
+                        provincia_destino = consulta_region("destino");
                         direccion_destino = consulta_direccion_nacional("destino");
-                        destino = $"{direccion_destino}, {region_destino}";
+                        destino = $"{direccion_destino}, {provincia_destino}, {region_destino}";
                         retiro_domicilio = true;
                     }
                     else
                     {
+                        provincia_destino = consulta_region("destino");
                         sucursal_de_retiro = consulto_sucursales();
-                        destino = $"{sucursal_de_retiro}";
+                        destino = $"{sucursal_de_retiro}, en {provincia_destino}";
                         retiro_domicilio = false;
                     }
                 }
@@ -324,7 +328,7 @@ string consulta_peso_encomienda(int numero_encomienda)
 }
 
 
-string consulta_region_origen()
+string consulta_region(string origen_destino)
 {
     List<string> opciones_validas = new List<string>();
     opciones_validas.Add("CABA");
@@ -358,7 +362,7 @@ string consulta_region_origen()
 
     while (bandera)
     {
-        Console.WriteLine("------------------------------------\nIngrese la provincia de origen(sin tildes):  ");
+        Console.WriteLine($"------------------------------------\nIngrese la provincia de {origen_destino} (sin tildes):  ");
         
         opcion_elegida = Console.ReadLine();
 
@@ -450,7 +454,7 @@ string consulta_direccion_nacional(string tipo_de_direccion)
     bool bandera = true;
     while (bandera)
     {
-        Console.WriteLine($"------------------------------------\nIngrese su dirección de {tipo_de_direccion}: Calle, Altura, Departamento y Código Postal:");
+        Console.WriteLine($"------------------------------------\nIngrese su dirección de {tipo_de_direccion}: Calle, Altura, Departamento y Código Postal");
         direccion_origen = Console.ReadLine().Trim();
         if (String.IsNullOrEmpty(direccion_origen))
         {
@@ -471,7 +475,7 @@ string consulta_direccion_internacional(string tipo_de_direccion)
     bool bandera = true;
     while (bandera)
     {
-        Console.WriteLine($"------------------------------------\nIngrese su dirección de {tipo_de_direccion}: Calle, Altura, Departamento y Ciudad  ");
+        Console.WriteLine($"------------------------------------\nIngrese su dirección de {tipo_de_direccion}: Calle, Altura, Departamento y Ciudad ");
         direccion_destino = Console.ReadLine().Trim();
         if (String.IsNullOrEmpty(direccion_destino))
         {
